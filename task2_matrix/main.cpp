@@ -2,16 +2,12 @@
 
 using namespace std;
 
-class Matrix_mult {
-public:
-    Matrix_mult() {};
-    virtual ~Matrix_mult() {};
-};
-
 class Sublines {
 public:
     int *line;
-    Sublines() {}
+    Sublines() {
+        line = nullptr;
+    }
     Sublines(int n) {
         line = new int[n];
         for (int i = 0; i < n; ++i) {
@@ -26,27 +22,41 @@ public:
     }
 };
 
-class Matrix : public Matrix_mult {
+class A{
+public:
+    static int cnt;
+    virtual void matrix_counter() = 0;
+    virtual ~A() {};
+};
+
+int A::cnt = 0;
+
+class Matrix : public A{
     int m;
     int n;
     Sublines *lines;
 public:
     Matrix(int m, int n){
+        A::cnt++;
         this->m = m;
         this->n = n;
         lines = new Sublines[m];
-        cout << "Enter elements of matrix" << endl;
-        for (int i = 0; i < m; ++i){
+         for (int i = 0; i < m; ++i){
             lines[i] = Sublines(n);
         }
     }
 
     Matrix(const Matrix& a) {
+        A::cnt++;
         m = a.m;
         n = a.n;
+        lines = new Sublines[m];
+        for (int i = 0; i < m; ++i){
+            lines[i] = Sublines(n);
+        }
         for (int i = 0; i < n; ++i){
             for (int j = 0; j < m; ++j){
-                this[i][j] = a[i][j];
+                (*this)[i][j] = a[i][j];
             }
         }
     }
@@ -61,17 +71,25 @@ public:
 
     friend ostream& operator<<(ostream &out, const Matrix &a);
 
-    static Matrix* Mult(const Matrix &a, const Matrix &b) {
-        Matrix *C = new Matrix(a.m, b.n);
-        for (int i = 0; i < a.m; ++i){
-            for (int j = 0; i < b.n; ++i){
-                C[i][j] = 0;
-                for (int k = 0; k < b.n + 1; ++k){
-                    C[i][j] = (a[i][k] + b[k][j]);
-                }
+    Matrix& operator= (const Matrix &a){
+        for (int i = 0; i < n; ++i) {
+            if (lines[i].line != nullptr)
+                delete[] (lines[i].line);
+        }
+        if (lines != nullptr)
+            delete[] lines;
+        n = a.n;
+        m = a.m;
+        lines = new Sublines[m];
+        for (int i = 0; i < m; ++i){
+            lines[i] = Sublines(n);
+        }
+        for (int i = 0; i < m; ++i){
+            for (int j = 0; j < n; ++j){
+                (*this)[i][j] = a[i][j];
             }
         }
-        return C;
+        return *this;
     }
 
     Matrix operator*(Matrix &a){
@@ -86,13 +104,27 @@ public:
         return tmp;
     }
 
+    Matrix operator*(int x){
+        Matrix tmp(m, n);
+        for (int i = 0; i < m; ++i){
+            for (int j = 0; j < n; ++j){
+                tmp[i][j] = (*this)[i][j]*x;
+            }
+        }
+        return tmp;
+    }
+
     ~Matrix() {
+        A::cnt--;
         for (int i = 0; i < n; ++i) {
             if (lines[i].line != nullptr)
                 delete[] (lines[i].line);
         }
         if (lines != nullptr)
             delete[] lines;
+    }
+    void matrix_counter() {
+        cout << cnt;
     }
 };
 
@@ -106,38 +138,6 @@ ostream& operator<<(ostream &out, const Matrix &a){
     return out;
 }
 
-/*class Matrix_mult: public Matrix {
-public:
-    int m;
-    int n;
-    Sublines *lines;
-public:
-    Matrix_mult(int m, int n){
-        this->m = m;
-        this->n = n;
-        lines = new Sublines[m];
-        cout << "Enter elements of matrix" << endl;
-        for (int i = 0; i < m; ++i){
-            lines[i] = Sublines(n);
-        }
-    }
-    virtual Matrix_mult& Mult(const Matrix_mult &a, const Matrix_mult &b) const {
-        Matrix_mult& C(a.n, b.m);
-        return C;
-    }
-    ~Matrix_mult() {
-    for (int i = 0; i < n; ++i) {
-        if (lines[i].line != nullptr)
-            delete[] (lines[i].line);
-        }
-        if (lines != nullptr)
-            delete[] lines;
-    }
-
-};*/
-
-
-
 int main() {
     int m, n;
     cout << "Enter number of lines in matrix" << endl;
@@ -145,6 +145,7 @@ int main() {
     cout << "Enter number of columns in matrix" << endl;
     cin >> n;
     Matrix a(m, n);
+    cout << "Enter elements of matrix" << endl;
     for (int i = 0; i < m; ++i){
         for (int j = 0; j < n; ++j){
             cin >> a[i][j];
@@ -155,14 +156,22 @@ int main() {
     cout << "Enter number of columns in matrix" << endl;
     cin >> n;
     Matrix b(m, n);
+    cout << "Enter elements of matrix" << endl;    
     for (int i = 0; i < m; ++i){
         for (int j = 0; j < n; ++j){
             cin >> b[i][j];
         }
     }
-//    Matrix *C = nullptr;
     cout << "Result" << endl;
     Matrix C = a*b;
     cout << C;
+    Matrix d = C;
+    d = a*15;
+    cout << d;
+    a = b;
+    cout << a;
+    cout << "There are ";
+    a.matrix_counter();
+    cout << "Matrix" << endl;
     return 0;
 }
