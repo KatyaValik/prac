@@ -116,7 +116,7 @@ public:
 
     ~Matrix() {
         A::cnt--;
-        for (int i = 0; i < n; ++i) {
+        for (int i = 0; i < m; ++i) {
             if (lines[i].line != nullptr)
                 delete[] (lines[i].line);
         }
@@ -163,15 +163,14 @@ int main() {
         }
     }
     cout << "Result" << endl;
-    Matrix C = a*b;
-    cout << C;
-    Matrix d = C;
-    d = a*15;
+    Matrix c = a*b;
+    cout << c;
+    Matrix d = c*15;
     cout << d;
     a = b;
     cout << a;
     cout << "There are ";
     a.matrix_counter();
-    cout << "Matrix" << endl;
+    cout << " Matrix" << endl;
     return 0;
 }
