@@ -45,7 +45,7 @@ int main(){
     }
     struct sockaddr_in ServerAddress;
     ServerAddress.sin_family = AF_INET;
-    ServerAddress.sin_port = htons(3425);
+    ServerAddress.sin_port = htons(3333);
     ServerAddress.sin_addr.s_addr = htonl(INADDR_ANY);
  
     if ( bind ( serverSocket, (sockaddr*)&ServerAddress, sizeof ( ServerAddress ) ) < 0 ){
