@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 GET / HTTP/1.1
 Date: Mon, 06 Apr 2020 21:00:05 GMT
 Host: 127.0.0.1:3452
@@ -5,3 +6,15 @@ Server: Model HTTP Server/0.1
 Connect: keep-alive
 Connect-length: 0
 
+=======
+HTTP/1.1 501 Not Implemented
+Date: Mon, 07 Apr 2020 10:00:05 GMT
+Host: 127.0.0.1:3425
+Server: Model HTTP Server/0.1
+Connection: keep-alive
+Allow: GET
+Content-Type: text/HTML
+Content-Length: 19
+
+501 Not Implemented
+>>>>>>> d5209c3eb6272d0dcf46c21fb7dc5e1684c155b6
