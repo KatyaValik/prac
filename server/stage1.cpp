@@ -28,7 +28,7 @@ int ProcessClientRequest (int clSocket,sockaddr* ClientAddress){
         send(clSocket, &buffer[0], size, 0);
         fout << buf;
     }
-    cout << buffer << endl;
+//   cout << buffer << endl;
     fout.close();
     shutdown(clSocket, 2);
     close(clSocket);
@@ -61,7 +61,6 @@ int main(){
     for (;;) {
         struct sockaddr_in ClientAddress;
         socklen_t ClAddrLen = sizeof(ClientAddress);                                    
-        // ждем очередного клиента 
         int clSocket = accept (serverSocket,(sockaddr*)&ClientAddress, &ClAddrLen);
         if ( clSocket < 0 ){
             flag_error++;

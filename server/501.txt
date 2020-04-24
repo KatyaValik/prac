@@ -1,10 +1,7 @@
 GET / HTTP/1.1
 Date: Mon, 06 Apr 2020 21:00:05 GMT
-Host: 127.0.0.1:3425
+Host: 127.0.0.1:3452
 Server: Model HTTP Server/0.1
-Connection: keep-alive
-Allow: GET
-
-501 Not Implemented
-
+Connect: keep-alive
+Connect-length: 0
 
