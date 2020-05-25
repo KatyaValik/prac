@@ -8,8 +8,37 @@
 #include <math.h>
 #include <exception>
 #include <cstring>
+#include <stack>
 
 using namespace std;
+
+template <class T, int max_size > class Stack{
+    Ts[max_size];
+    int top;
+public:
+    Stack(){top = 0;}
+    void reset() { top = 0; }
+    void push(T i);
+    T pop();
+    bool is_empty(){ return top == 0; }
+    bool is_full() { return top == max_size; }
+};
+template <class T, int max_size >
+void Stack <T, max_size >::push(T i) {
+    if (!is_full()) {
+        s[top] = i;
+        ++top;
+    } else
+        throw "Stack_is_full";
+}
+template <class T, int max_size >
+T Stack <T, max_size >::pop(){
+    if (!is_empty()) {
+        --top;
+        return s[top];
+    } else
+        throw "Stack_is_empty";
+}
 
 enum type_of_lex
 {
@@ -146,7 +175,7 @@ public:
 };
 
 class Scanner{
-    enum state { BEGIN, IDENTIFICATOR, NUMBER, OPERATOR, STRING, ARRAY, OBJECT, DELIM, DOUBLE, FLOAT };
+    enum state { BEGIN, IDENTIFICATOR, NUMBER, OPERATOR, STRING, ARRAY, OBJECT, DELIM, DOUBLE, FLOAT, COMMENT };
     static char * TW[];
     static type_of_lex words[];
     static char * TD[];
@@ -200,7 +229,7 @@ char * Scanner::TW[] =
 "undefined",    // 4
 "null",         // 5
 "typeof",       // 6
-"funclion",     // 7
+"function",     // 7
 "if",           // 8
 "else",         // 9
 "while",        // 10
@@ -355,12 +384,25 @@ lexem Scanner::get_lexem() {
                         gc();
                         CS = OPERATOR;
                     }
+                    else if (c == '#') {
+                        CS = COMMENT;
+                        gc();
+                    }
                     else if (c == EOF) {
                         return lexem(LEX_FIN);
                     }
                     else {
                         CS = DELIM;
                     }
+                    break;
+                case COMMENT: 
+                    while (c != '\n') {
+                        if (c == EOF) {
+                            return lexem(LEX_FIN);
+                        }
+                        gc();
+                    }
+                    CS = BEGIN;
                     break;
                 case IDENTIFICATOR:
                     if (isalpha(c) || isdigit(c) || c =='_'){
@@ -481,8 +523,118 @@ lexem Scanner::get_lexem() {
         cout << s << endl;
     }
     catch (char c) {
-        cout << "incorrect sympol: " << c << endl;
+        cout << "incorrect symbol: " << c << endl;
     }
+}
+
+class Parser {
+    lexem curr_lex;
+    type_of_lex c_type;
+    int c_val;
+    Scanner scan;
+    Stack <int, 100> st_int;
+    Stack <type_of_lex, 100> st_lex;
+
+    void S();
+    void F();
+    void A();
+    void B();
+    void D();
+
+    void get_l() {
+        curr_lex = scan.get_lexem();
+        c_type = curr_lex.get_type();
+        c_val = curr_lex.get_value();
+    }
+
+public:
+    vector <lexem> poliz;
+    Parser () : scan() { }
+    void analyze();
+};
+
+void Parser::analyze () {
+    get_l();
+    S();
+    if (c_type != LEX_FIN)
+        throw curr_lex;
+    for (lexem l : poliz) cout << l;
+    cout << endl << "Yes!!!" << endl;
+}
+
+void Parser:: S() {
+    if (c_type == LEX_FUNCTION){
+        get_l();
+        F();
+        S();
+    } else if (c_type == LEX_VAR){
+        get_l();
+        A();
+    }
+    if (c_type == LEX_SEMICOLON)
+        get_l ();
+    else
+        throw curr_lex;
+    B();
+}
+
+void Parser::A() {
+    if ( c_type == LEX_VAR){
+        get_l(); 
+        D();
+        while (c_type == LEX_COMMA){
+            get_l();
+            D();
+        }
+    }else
+        throw curr_lex;
+}
+
+void Parser::D() {
+    void Parser::D () {
+st_int.reset();
+if
+( c_type != LEX_ID
+)
+throw curr_lex;
+else {
+st_int.push ( c_val );
+gl ();
+while
+( c_type == LEX_COMMA
+)
+{
+gl();
+if (c_type != LEX_ID)
+throw curr_lex;
+else
+{
+st_int.push ( c_val ); gl();
+}
+}
+if
+( c_type != LEX_COLON
+)
+throw curr_lex;
+else {
+gl ();
+if
+( c_type == LEX_INT )
+{
+dec ( LEX_INT );
+gl();
+}
+else 
+
+if ( c_type == LEX_BOOL )
+{
+dec ( LEX_BOOL );
+gl();
+}
+else
+throw curr_lex;
+}
+}
 }
 
 int main() {
