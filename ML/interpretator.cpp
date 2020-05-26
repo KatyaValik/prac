@@ -1040,6 +1040,8 @@ void Executer::execute ( Poliz& prog ) {
     int x1, x2;
     string s1, s2;
     bool flag_str = false;
+    int strings = 0; // 1 - сначала в str, 2 - сначала в args
+    int count = 0; //если 2, то оба в str
     Stack < int, 100 > args;
     Stack < string, 100> str_args; 
     int i, j, index = 0, size = prog.get_free();
@@ -1054,6 +1056,8 @@ void Executer::execute ( Poliz& prog ) {
             args.push ( pc_el.get_value () );
             break;
         case LEX_STRCONST:
+            strings++;
+            count++;
             flag_str = true;
             str_args.push(str[pc_el.get_value()]);
             break;
@@ -1062,6 +1066,7 @@ void Executer::execute ( Poliz& prog ) {
             t = TID[i].get_type();
             if ( TID[i].get_assign () ) {
                 if ( t == LEX_STRING ) {
+                    strings = 1;
                     args.push(i);
                 } else {
                     args.push ( TID[i].get_value () );
@@ -1097,30 +1102,23 @@ void Executer::execute ( Poliz& prog ) {
             break;
         case LEX_READ:
         {
+            string str_read;
             int k;
             i = args.pop ();
             if ( TID[i].get_type () == LEX_INT ) {
                 cout << "Input int value for ";
                 cout << TID[i].get_name () << endl;
                 cin >> k;
-            } else {
-                char j[20];
-             rep:
-                cout << "Input boolean value for (true or false) for "; //???
-                cout << TID[i].get_name() << endl;
-                cin >> j;
-                if ( !strcmp(j, "true") )
-                    k = 1;
-                else if ( !strcmp(j, "false") )
-                    k = 0;
-                else {
-                    cout << "Error in input:true/false";
-                    cout << endl;
-                    goto rep;
-                }
+                TID[i].put_value (k);
+                TID[i].put_assign ();
+            } else if (TID[i].get_type() == LEX_STRING ) {
+                cout << "Input int value for ";
+                cout << TID[i].get_name () << endl;
+                cin >> str_read;
+                str.push_back(str_read);
+                TID[i].put_value(str.size() - 1);
+                TID[i].put_assign();
             }
-            TID[i].put_value (k);
-            TID[i].put_assign ();
             break; }
         case LEX_PLUS:
             if (!flag_str) {
@@ -1135,13 +1133,30 @@ void Executer::execute ( Poliz& prog ) {
                 } else {
                     args.push ( x1 + x2 );
                 }
-            } else {
+            } else if (count == 2) {
+                s2 = str_args.pop();
+                s1 = str_args.pop();
+                s1 = s1 + s2;
+                str_args.push(s1);
+                count = 1;
+                strings = 0;
+            } else if (strings == 1) {
                 x1 = args.pop();
                 s1 = str_args.pop();
                 s2 = str[TID[x1].get_value()];
                 s1 = s1 + s2;
                 str_args.push(s1);
-                }
+                count = 1;
+                strings = 0;
+            } else if (strings == 2) {
+                x1 = args.pop();
+                s2 = str_args.pop();
+                s1 = str[TID[x1].get_value()];
+                s1 = s1 + s2;
+                str_args.push(s1);
+                count = 1;
+                strings = 0;
+            }
             break;
         case LEX_MULT:
             args.push ( args.pop() * args.pop() );
@@ -1212,6 +1227,8 @@ void Executer::execute ( Poliz& prog ) {
                 TID[j].put_value(str.size() - 1);
                 TID[j].put_assign();
                 flag_str = false;
+                strings = 0;
+                count = 0;
             } else {
                 i = args.pop();
                 j = args.pop();
@@ -1232,7 +1249,7 @@ void Executer::execute ( Poliz& prog ) {
     }; //end of while
     cout << "Finish of executing!!!" << endl;
 }
-    
+
 class Interpretator { 
     Parser pars;
     Executer E;
